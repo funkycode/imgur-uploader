@@ -122,13 +122,9 @@ printf("nope\n");}
 
 original = json_object_get(root, "upload");
 
-  if(!json_object_get(original, "links"))
 
 original = json_object_get(original, "links");
  
-if(!json_object_get(original, "original"))
-
-
  original = json_object_get(original, "original");
          if(!json_is_string(original))
 		         {
