@@ -2,35 +2,33 @@
 #include <curl/curl.h>
 #include <string.h>
 #include <stdlib.h>
-#include <mxml.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <jansson.h>
+
+#define BUFFER_SIZE  (256 * 1024)  /* 256 KB */
 
 
-
-struct MemoryStruct {
-  char *memory;
-    size_t size;
-	};
-
-static size_t response_data(void *contents, size_t size, size_t nmemb, void *userp)
+struct write_result
 {
-  size_t realsize = size * nmemb;
-  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-  mem->memory = realloc(mem->memory, mem->size + realsize + 1);
-  if (mem->memory == NULL) {
-		     /* out of memory! */ 
-     printf("not enough memory (realloc returned NULL)\n");
-     exit(EXIT_FAILURE);
-   }
-					    
-   memcpy(&(mem->memory[mem->size]), contents, realsize);
-   mem->size += realsize;
-   mem->memory[mem->size] = 0;
-  return realsize;
+    char *data;
+	    int pos;
+		};
 
-}
 
+static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+    struct write_result *result = (struct write_result *)stream;
+
+	    if(result->pos + size * nmemb >= BUFFER_SIZE - 1)
+		    {
+			        fprintf(stderr, "error: too small buffer\n");
+					        return 0;
+							    }
+
+								    memcpy(result->data + result->pos, ptr, size * nmemb);
+									    result->pos += size * nmemb;
+
+										    return size * nmemb;
+											}
 
 
 
@@ -42,17 +40,24 @@ int main(int argc, char *argv[]){
  CURLcode result;
  struct curl_httppost *post=NULL;
  struct curl_httppost *lastptr=NULL;
- FILE *fd;
- mxml_node_t *tree;
- mxml_node_t *node;
-struct MemoryStruct chunk;
- 
-   chunk.memory = malloc(1);  /* will be grown as needed by the realloc above */ 
-     chunk.size = 0; 
+ char *data;
 
-   printf("START \n");
+data = malloc(BUFFER_SIZE);
+struct write_result write_result = {
+				        .data = data,
+						        .pos = 0
+								    };
+
+
+
+ unsigned int i;
+     char *text;
+		     json_t *root;
+			     json_error_t error;
+				     json_t *links;
+
+
    handle = curl_easy_init();
-
 
 
 
@@ -79,29 +84,63 @@ struct MemoryStruct chunk;
 
 
 
-    curl_easy_setopt(handle, CURLOPT_URL,"http://api.imgur.com/2/upload");
-   // curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, response_data);
+    curl_easy_setopt(handle, CURLOPT_URL,"http://api.imgur.com/2/upload.json");
+   curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_response);
  
- 
-    curl_easy_setopt(handle, CURLOPT_HTTPPOST, post);
-//    curl_easy_setopt(handle, CURLOPT_WRITEDATA, fd);
+   curl_easy_setopt(handle, CURLOPT_WRITEDATA, &write_result); 
+   curl_easy_setopt(handle, CURLOPT_HTTPPOST, post);
 	  
 	
   
   result = curl_easy_perform(handle);
   
-printf("debug2");
-   tree = mxmlLoadFile(NULL, fd,
-                        MXML_TEXT_CALLBACK);
- printf("debug3");
-   node = mxmlFindElement(tree, tree, "links",
-		                           "href", NULL,
-								                              MXML_DESCEND);
+    curl_formfree(post);
+    curl_easy_cleanup(handle);
+    curl_global_cleanup();
 
-printf("debug4");
-printf("url is %s\n", node->value.text.string);
+		    data[write_result.pos] = '\0';
+    
+    text = data;
+	root = json_loads(text ,0, &error);
+	    free(text);
 
-curl_formfree(post);
+
+
+		    if(!root)
+			    {
+				        fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
+						        return 1;
+								    }
+
+
+
+json_t *original, *date, *name;
+const char *message_text;
+if(!json_object_get(root, "upload")){
+printf("nope\n");}
+
+
+original = json_object_get(root, "upload");
+
+  if(!json_object_get(original, "links"))
+
+original = json_object_get(original, "links");
+ 
+if(!json_object_get(original, "original"))
+
+
+ original = json_object_get(original, "original");
+         if(!json_is_string(original))
+		         {
+				             fprintf(stderr, "error: commit %d: message is not a string\n", i + 1);
+							             return 1;
+										         }
+
+											         message_text = json_string_value(original);
+											
+														         printf("%s\n",
+																							                  message_text);
+
    }   
  return 0;
 }
