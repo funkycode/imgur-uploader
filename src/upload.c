@@ -36,12 +36,12 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream)
 
 
 int main(int argc, char *argv[]){
- CURL *handle;
+CURL *handle;
  CURLcode result;
  struct curl_httppost *post=NULL;
  struct curl_httppost *lastptr=NULL;
  char *data;
-
+char *file;
 data = malloc(BUFFER_SIZE);
 struct write_result write_result = {
 				        .data = data,
@@ -56,6 +56,12 @@ struct write_result write_result = {
 			     json_error_t error;
 				     json_t *links;
 
+
+
+
+
+
+   file=argv[1];
 
    handle = curl_easy_init();
 
@@ -76,7 +82,7 @@ struct write_result write_result = {
      curl_formadd(&post,
 	              &lastptr,
 	                      CURLFORM_COPYNAME, "image",
-	                      CURLFORM_FILE, "test.png",
+	                      CURLFORM_FILE, file,
 	                      CURLFORM_END);
 	  
 
