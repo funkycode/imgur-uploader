@@ -1,6 +1,9 @@
-#####N9imgur#####
-for now it's just the name
-TODO
-i'll try to fix my existing code so it would be able to parse returned info (getting url)
-try to add gui with browsing folders (so no anonym upload)
-anonym upload
+####imgur-uploader####
+simple uploader for computer
+
+TODO:rename app
+For now it only uploads with anon auth.
+Usage:
+n9imgur file_to_upload.png
+
+(for now the name is the same as the old project)
