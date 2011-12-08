@@ -1,9 +1,9 @@
 ####imgur-uploader####
 simple uploader for computer
 
-TODO:rename app
 For now it only uploads with anon auth.
+Dependies:
+curl and jansson
 Usage:
-n9imgur file_to_upload.png
+imgrup file_to_upload.png
 
-(for now the name is the same as the old project)
