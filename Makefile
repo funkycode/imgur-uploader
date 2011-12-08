@@ -3,7 +3,7 @@ ENDIAN_CFLAGS=
 PREFIX ?=/usr/local
 
 VERSION := 0.0.1
-TARBALL := n9imgur-$(VERSION).tar.gz
+TARBALL := imgur-uploader-$(VERSION).tar.gz
 CURL_CFLAGS := `pkg-config libcurl --cflags`
 CURL_LDFLAGS := `pkg-config libcurl --libs`
 MINIXML_CFLAGS:=  `pkg-config --cflags jansson`
@@ -20,7 +20,7 @@ ifdef BIG_ENDIAN
 	ENDIAN_CFLAGS=-DWORDS_BIGENDIAN
 endif
 
-BINARY := bin/n9imgur
+BINARY := bin/imgurup
 OBJECTS := src/upload.c 
 
 all: $(BINARY)
@@ -38,10 +38,10 @@ $(BINARY): $(OBJECTS) bin
 bin:
 	$(QUIET_MKDIR)mkdir bin
 dist:
-	rm -rf $(TARBALL) n9imgur-$(VERSION)
-	git archive --format=tar --prefix=n9imgur-$(VERSION)/ HEAD | tar -x
-	git log > n9imgur-$(VERSION)/ChangeLog
+	rm -rf $(TARBALL) imgur-uploader-$(VERSION)
+	git archive --format=tar --prefix=imgur-uploader-$(VERSION)/ HEAD | tar -x
+	git log > imgur-uploader-$(VERSION)/ChangeLog
 	tar czvf $(TARBALL) n9imgur-$(VERSION)
-	rm -rf n9imgur-$(VERSION)
+	rm -rf imgur-uploader-$(VERSION)
 clean:
 	rm -rf bin
