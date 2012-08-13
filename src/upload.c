@@ -36,41 +36,49 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream)
 
 
 int main(int argc, char *argv[]){
-CURL *handle;
+
+ CURL *handle;
  CURLcode result;
  struct curl_httppost *post=NULL;
  struct curl_httppost *lastptr=NULL;
  char *data;
-char *file;
-data = malloc(BUFFER_SIZE);
-struct write_result write_result = {
+ char *file;
+ data = malloc(BUFFER_SIZE);
+ struct write_result write_result = {
 				        .data = data,
 						        .pos = 0
-								    };
+ 							    };
 
 
-
+ short int indx = argc - 1;
  unsigned int i;
      char *text;
 		     json_t *root;
 			     json_error_t error;
 				     json_t *links;
 
-
-
-
-
-
-   file=argv[1];
+   if (argc == 1 || strcmp(argv[1], "--help") == 0|| strcmp(argv[1], "-h") == 0) {
+     printf("Usage: %s file_1.png file_2.png .... file_n.png\n\n", argv[0]);
+     return 0;
+   }
 
    handle = curl_easy_init();
+   if (!handle) {
+       printf("something is wrong!");
+       return 2;
+   }
+   while (indx != 0) {
+   
+   file = argv[(argc - indx)];
+   //handle = curl_easy_init();
+   
+   printf("test: %s \n\n", file);
 
 
 
 
 
-
-   if (handle){
+   //if (handle){
 
    /* Fill in the file upload field */ 
      curl_formadd(&post,
@@ -90,33 +98,26 @@ struct write_result write_result = {
 
 
 
-    curl_easy_setopt(handle, CURLOPT_URL,"http://api.imgur.com/2/upload.json");
+   curl_easy_setopt(handle, CURLOPT_URL,"http://api.imgur.com/2/upload.json");
    curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_response);
- 
    curl_easy_setopt(handle, CURLOPT_WRITEDATA, &write_result); 
    curl_easy_setopt(handle, CURLOPT_HTTPPOST, post);
 	  
 	
   
   result = curl_easy_perform(handle);
-  
-    curl_formfree(post);
-    curl_easy_cleanup(handle);
-    curl_global_cleanup();
-
-		    data[write_result.pos] = '\0';
-    
-    text = data;
-	root = json_loads(text ,0, &error);
-	    free(text);
-
-
-
-		    if(!root)
-			    {
-				        fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
-						        return 1;
-								    }
+  curl_formfree(post);
+  curl_easy_cleanup(handle);
+  curl_global_cleanup();
+  data[write_result.pos] = '\0';
+  text = data;
+  root = json_loads(text ,0, &error);
+  free(text);
+  if(!root)
+    {
+     fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
+     return 1;
+    }
 
 
 
@@ -131,19 +132,19 @@ original = json_object_get(root, "upload");
 
 original = json_object_get(original, "links");
  
- original = json_object_get(original, "original");
+original = json_object_get(original, "original");
          if(!json_is_string(original))
 		         {
 				             fprintf(stderr, "error: commit %d: message is not a string\n", i + 1);
 							             return 1;
 										         }
 
-											         message_text = json_string_value(original);
-											
-														         printf("%s\n",
-																							                  message_text);
+message_text = json_string_value(original);
+printf("file %s uploaded — %s\n",file,message_text);
 
-   }   
+  // }
+indx--;  
+} 
  return 0;
 }
 
