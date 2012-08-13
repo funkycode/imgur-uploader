@@ -1,1 +1,3 @@
 bin
+scr/*.swp
+.gitignore
