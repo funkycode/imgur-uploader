@@ -69,7 +69,7 @@ main (int argc, char *argv[])
 
     while (indx != 0)
     {
-
+     // data = malloc (BUFFER_SIZE);
       file = argv[(argc - indx)];
       //handle = curl_easy_init();
       handle = curl_easy_init ();
@@ -118,11 +118,12 @@ main (int argc, char *argv[])
       post = NULL;
       lastptr = NULL;
       curl_easy_cleanup (handle);
-      curl_global_cleanup ();
-      printf("debug 1");
+     // curl_global_cleanup ();
       data[write_result.pos] = '\0';
+      printf("debug1\n");
       text = data;
       data = NULL;
+      data = malloc (BUFFER_SIZE);
       root = json_loads (text, 0, &error);
       free (text);
       text = NULL;
@@ -157,9 +158,10 @@ main (int argc, char *argv[])
 
       message_text = json_string_value (original);
       printf ("file %s uploaded — %s\n", file, message_text);
-
+      //free(message_text);
       // }
       indx--;
     }
+  curl_global_cleanup ();
   return 0;
 }
