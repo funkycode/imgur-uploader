@@ -67,17 +67,18 @@ main (int argc, char *argv[])
       return 0;
     }
 
-  handle = curl_easy_init ();
-  if (!handle)
-    {
-      printf ("something is wrong!");
-      return 2;
-    }
-  while (indx != 0)
+    while (indx != 0)
     {
 
       file = argv[(argc - indx)];
       //handle = curl_easy_init();
+      handle = curl_easy_init ();
+      if (!handle)
+       {
+        printf ("something is wrong!");
+        return 2;
+       }
+
 
       printf ("test: %s \n\n", file);
 
@@ -114,12 +115,17 @@ main (int argc, char *argv[])
 
       result = curl_easy_perform (handle);
       curl_formfree (post);
+      post = NULL;
+      lastptr = NULL;
       curl_easy_cleanup (handle);
       curl_global_cleanup ();
+      printf("debug 1");
       data[write_result.pos] = '\0';
       text = data;
+      data = NULL;
       root = json_loads (text, 0, &error);
       free (text);
+      text = NULL;
       if (!root)
 	{
 	  fprintf (stderr, "error: on line %d: %s\n", error.line, error.text);
