@@ -46,11 +46,11 @@ main (int argc, char *argv[])
   struct curl_httppost *lastptr = NULL;
   char *data;
   char *file;
-  data = malloc (BUFFER_SIZE);
-  struct write_result write_result = {
-    .data = data,
-    .pos = 0
-  };
+ // data = malloc (BUFFER_SIZE);
+ // struct write_result write_result = {
+ //   .data = data,
+ //   .pos = 0
+ // };
 
 
   short int indx = argc - 1;
@@ -70,6 +70,13 @@ main (int argc, char *argv[])
     while (indx != 0)
     {
      // data = malloc (BUFFER_SIZE);
+      data = malloc (BUFFER_SIZE);
+      struct write_result write_result = {
+       .data = data,
+       .pos = 0
+      };
+
+
       file = argv[(argc - indx)];
       //handle = curl_easy_init();
       handle = curl_easy_init ();
@@ -123,7 +130,6 @@ main (int argc, char *argv[])
       printf("debug1\n");
       text = data;
       data = NULL;
-      data = malloc (BUFFER_SIZE);
       root = json_loads (text, 0, &error);
       free (text);
       text = NULL;
